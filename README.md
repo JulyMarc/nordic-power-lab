@@ -7,8 +7,8 @@ written down before its test. Failed claims stay in the record.
 ## Write-ups
 | Topic | Question | Answer in one line |
 |---|---|---|
-| [Imbalance-price nowcast](nowcast.md) | Can public data forecast the imbalance − day-ahead gap 30 min to 3 h ahead? | A linear model failed. A three-part boosted model beats the best simple rule by 0.6–4.9% in the backtest; the live test decides. For a wind portfolio's close-out decision it does not beat "always close". |
-| [15-minute day-ahead](mtu15.md) | What changed in Danish interconnector flows when day-ahead moved to 15-minute products? | Flow changes around the full hour fell by 10.5 pp (DK1) and 7.6 pp (DK2); schedules on every SDAC border turned quarter-hourly, the GB cable did not. |
+| [Imbalance-price nowcast](nowcast.md) | Can public data forecast the imbalance − day-ahead gap 30 min to 3 h ahead? | A linear model failed. A boosted model beats simple rules by 0.5–4.9% in the backtest (1.4–3.5% against stronger rules, per an independent audit); the live test decides. Money value: withdrawn and being redone. |
+| [15-minute day-ahead](mtu15.md) | What changed in Danish interconnector flows when day-ahead moved to 15-minute products? | In two stages (March and October 2025): flow changes around the full hour fell by 10.5 pp (DK1) and 7.6 pp (DK2) from 2025 to 2026; day-ahead schedules on SDAC borders turned quarter-hourly, the GB cable did not. |
 
 ## Live
 - **[Status page](https://julymarc.github.io/nordic-power-lab/status/)** (updated every 30 minutes) shows the newest forecasts, how many have been issued and scored, and data
