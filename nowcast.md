@@ -1,6 +1,6 @@
 # Forecasting the Danish imbalance price 30 minutes to 3 hours ahead
 
-*Status 13 Nov 2026. Backtest done; the selected model has run live since 13 Nov and is scored against
+*Status 15 Nov 2026 (revised after an independent audit, see the end). Backtest done; the selected model has run live since 13 Nov and is scored against
 simple rules. The live comparison stays sealed until fixed dates (below).*
 
 ## The question
@@ -16,8 +16,9 @@ simple rules. The live comparison stays sealed until fixed dates (below).*
   day-ahead price (Energinet's rule): 24% of 2026 quarters in DK1, 35% in DK2.
 - **A heavy tail.** Tail index 1.8–2.5: gaps of several hundred EUR/MWh are routine. In 5 Mar – 31 Oct 2026,
   61 days in DK1 and 105 in DK2 had at least one quarter above 500 EUR/MWh.
-- **The latest information is old.** The imbalance price appears 45 min after the quarter (median; p99 60 min,
-  measured live over 824 quarters). At issue time the newest usable gap is the quarter that started 75 min
+- **The latest information is old.** The imbalance price appears 45 min after the quarter (median). Over 8 days
+  of live polling, 7% of quarters were published later than 75 min (source delays on 12–14 Nov, up to 4 h 20 min).
+  At issue time the newest usable gap is the quarter that started 75 min
   earlier. Its correlation with the target falls from 0.40/0.60 (15 min, DK1/DK2) to 0.07/0.15 (75 min).
 - **Two structural breaks.** 15-minute day-ahead products from 1 Oct 2025; a new rule for the imbalance
   direction on 4 Mar 2026. Results are reported from 5 Mar 2026.
@@ -28,7 +29,8 @@ simple rules. The live comparison stays sealed until fixed dates (below).*
   hour, realised wind and solar minus the day-ahead forecast, realised interconnector flows minus the
   day-ahead schedule.
 - Target quarter: day-ahead price and its ramp inside the hour, position in the hour, hour of day, weekend.
-- Every source is stored with the time it was fetched, so the backtest only sees what was known then.
+- History before 7 Nov 2026 has no fetch times: the backtest uses final values with fixed availability lags
+  (75 min for prices, 15 min for real-time data), measured on live polling. Fetch times are stored from 7 Nov on.
 
 ## How it is tested
 - **Walk-forward.** Each month is forecast by models trained on data from Oct 2025 up to the day before that
@@ -36,7 +38,7 @@ simple rules. The live comparison stays sealed until fixed dates (below).*
 - **Simple rules scored the same way.** "Gap = 0"; the training distribution; "gap = last known gap"; the
   distribution by quarter position and day-ahead ramp; the distribution by the current aFRR activation.
   A model has to beat the best of these in each cell.
-- **Scores.** CRPS (whole distribution) is primary; direction log loss, mean absolute error, the 1% and 99%
+- **Scores.** CRPS (whole distribution, approximated by the quantile score on 21 levels) is primary; direction log loss, mean absolute error, the 1% and 99%
   quantile losses and P(|gap| > 100) are reported.
 - **Uncertainty.** Day-block bootstrap; Bonferroni over the six area × horizon cells.
 - **Written down first.** Each model and score was committed before its first run; every run is logged,
@@ -59,21 +61,26 @@ simple rules. The live comparison stays sealed until fixed dates (below).*
 
 ![V3 skill](fig/n4_v3_skill.png)
 
-| Area | Ahead | CRPS vs best simple rule | Mean absolute error |
-|---|---|---|---|
-| DK1 | 30 min | **4.9% better** | **2.7% better** |
-| DK1 | 1 h | **2.7% better** | **1.1% better** |
-| DK1 | 3 h | **1.7% better** | no difference |
-| DK2 | 30 min | **3.4% better** | **1.4% better** |
-| DK2 | 1 h | **1.5% better** | no difference |
-| DK2 | 3 h | **0.6% better** | no difference |
+| Area | Ahead | CRPS vs best simple rule | CRPS vs trailing-window rule (audit) | Mean absolute error |
+|---|---|---|---|---|
+| DK1 | 30 min | **4.9% better** | **3.5% better** | **2.7% better** |
+| DK1 | 1 h | **2.7% better** | **2.1% better** | **1.1% better** |
+| DK1 | 3 h | **1.7% better** | **1.4% better** | no difference |
+| DK2 | 30 min | **3.4% better** | **3.0% better** | **1.4% better** |
+| DK2 | 1 h | **1.5% better** | **1.4% better** | no difference |
+| DK2 | 3 h | **0.6% better** | 0.5% better | no difference |
 
-*Bold: the interval excludes zero.*
+*Bold: the interval excludes zero. The audit's rules are refreshed daily on the last 28–120 days and conditioned
+on the last known regime; they were picked on the test months, as the project's own rules were. Against them,
+8–30% of the headline gain disappears, and DK2 3 h is no longer distinguishable from zero.*
 
 - Direction log loss is 0.6–3.2% better, and the interval excludes zero in 5 of 6 cells.
 - **Weak spot: the extreme upper tail.** The 99% quantile is 0–11% worse than the simple rules.
-- **The structure does most of the work.** The same model on the round-1 inputs comes close; the real-time
-  inputs add mainly at 30 minutes, where they are freshest.
+- **A boosted-tree model on the round-1 inputs does most of the work.** A plain quantile-boosting model without
+  the three-part structure scores the same (within ±0.3%). The real-time inputs add only at 30 minutes, where
+  they are freshest.
+- **Where the gain is.** Mostly in quarters with large gaps (|gap| > 100 EUR/MWh, 16% of quarters): V3 forecasts
+  the size of the risk better than the rules; it is only modestly better on the sign.
 - **Not a claim.** These months had already been used for round 1, so this is a selection-aware backtest.
   The claim is tested only on new, live data.
 
@@ -99,18 +106,22 @@ simple rules. The live comparison stays sealed until fixed dates (below).*
   (single forecasts with infinite tails), and with it the two pre-registered combiners that included it.
   Without it (a post-hoc check), online weighting ends up mostly on V3 and its simpler sibling: +0.2%, within
   noise.
-- **Reading:** with these inputs V3 is near the ceiling. Further gains need new information, not more model.
+- **Single-seed caveat.** Each model was fitted with one random seed; V3 refitted with other seeds moves by
+  ±0.3%. Differences of that size above are not evidence.
+- **Reading:** nothing tried reached +2% over V3. But V3 is not at the ceiling: averaging V3 with its two
+  feature variants gains about 1% in every cell (found by the audit after the fact, so it is a candidate, not a
+  result). Large further gains need new information, not more model.
 
-## Is it worth money? A wind portfolio's close-out decision
-- **Setting.** Each area's wind fleet is sold day-ahead at its forecast. At gate closure (60 min before the
-  quarter) it either closes its current error or leaves it to imbalance settlement.
-- **Leaving errors open is costly.** It costs 7.5 EUR per MWh of error in DK1 and 22 in DK2: wind errors are
-  usually on the wrong side of the system.
-- **V3 does not beat closing everything.** Using V3 to choose which errors to leave open gives DK1 +0.4 EUR/MWh
-  (interval includes zero) and DK2 −5.7.
-- **The decision itself has value.** A perfect sign forecast would be worth 21–26 EUR/MWh.
-- **Caveats.** The day-ahead price stands in for the intraday close-out price (this overstates both the cost
-  and the oracle gap); closing is assumed free and unlimited.
+## Is it worth money? Withdrawn and being redone
+- An earlier version of this section said that V3 does not beat closing every wind error. That calculation was
+  wrong: it charged the part of the wind error that cannot be closed only when the position was left open.
+- **Corrected reading (descriptive, post hoc).** Only the error visible at gate closure can be closed. For that
+  part, leaving it open when V3 expects a gain earned about 3.5 EUR per MWh of error in both areas (90% interval
+  1.5–5.9). A one-line rule (leave it open when it has the sign of the current aFRR activation) earned 2.3–2.8,
+  and the difference between the two is within noise. Half of the value came from five days.
+- The day-ahead price stands in for the intraday close-out price, so these are upper bounds.
+- A new value study, with this accounting and one-line rules as comparators, will be pre-registered and run on
+  new data before any money figure is claimed.
 
 ## Live test (running)
 - V3 issues forecasts every 15 minutes beside the simple rules; scores are computed daily.
@@ -124,5 +135,14 @@ simple rules. The live comparison stays sealed until fixed dates (below).*
 - **Read the regime instead of predicting it.** Energinet publishes mFRR activations before the price. If they
   arrive early enough, the sign of the current quarter becomes known 35–50 minutes before its price. The
   arrival times are being measured now.
+  An upper bound (V3 told the true sign of the current quarter) is +5.3% CRPS in DK1 and +3.0% in DK2 at
+  30 minutes, about +1% at 1 hour and nothing at 3 hours. On the first four days of the feed its sign agrees
+  with the price regime in 91–96% of quarters.
+
+## Independent audit (15 Nov 2026)
+- A second model (Claude Fable 5.2, high reasoning) re-checked the whole study from the data with its own code.
+- Confirmed: V3's forecasts reproduce bit for bit; every input respects its stated lag; no leakage in V3.
+- Changed here as a result: the stronger rule comparison, the price-lag figures, the history-vintage
+  statement, the "ceiling" reading, the seed caveat, and the withdrawn money section.
 
 *Data: Energi Data Service (Energinet), CC BY 4.0; ENTSO-E Transparency Platform. Code available on request.*

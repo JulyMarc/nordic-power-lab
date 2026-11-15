@@ -1,4 +1,4 @@
-# What changed in Danish interconnector flows when day-ahead went to 15 minutes
+# What changed in Danish interconnector flows as markets went to 15 minutes (March and October 2025)
 
 Descriptive study. Data: Energi Data Service (Energinet, CC BY 4.0) and ENTSO-E Transparency Platform.
 The analysis plan was committed before any outcome statistic was computed; every look and every departure
@@ -7,15 +7,22 @@ from the plan is logged.
 ## Result in one paragraph
 
 In DK1 and DK2, the share of 5-minute interconnector flow change that happens within ±10 minutes of the full hour fell
-by **10.5 pp** (54.2% → 43.8%, 90% CI −11.5 to −9.6) and **7.6 pp** (42.4% → 34.8%, CI −8.3 to −7.0) between
-May–Sep 2025 and May–Sep 2026, with a step in October 2025, when the European day-ahead market (SDAC) moved to
-15-minute products. The size of changes at the hour stayed about the same; changes elsewhere in the hour grew
+by **10.5 pp** (54.2% → 43.8%, 90% CI −12.4 to −8.7, 28-day block bootstrap) and **7.6 pp** (42.4% → 34.8%, CI −8.5 to −6.7)
+between May–Sep 2025 and May–Sep 2026, with a step dated 30 Sep/1 Oct 2025 by a changepoint search without
+candidate dates (−9.1 / −6.4 pp over 28 days), when the European day-ahead market (SDAC) moved to 15-minute
+products. DK2 also fell 3 pp at the same calendar date in 2024, so not all of the step is the switch. The size of changes at the hour stayed about the same; changes elsewhere in the hour grew
 (+52% DK1, +31% DK2). Under the pre-registered rules the claim is capped at *"possibly a measurement change"*, because the
 wind control also moved. Checks run after the main analysis (labelled post-hoc below) point to a market cause:
 the day-ahead schedules themselves (ENTSO-E, an independent non-SCADA source) went from strictly hourly to
 quarter-hourly on every SDAC border in October 2025, the GB cable, which is outside SDAC, stayed hourly in
 both sources, and the wind control moved mostly on negative-price days, which fits (but does not prove) hourly
 curtailment becoming quarter-hourly.
+
+**It is the second of two stages.** The hour-boundary share had already fallen in March 2025, when quarter-hour
+steps first appeared on Danish cables (Nordic mFRR energy activation market, 4 March; 15-minute intraday and
+imbalance prices, 19 March). Its size is hard to state: on 18 Feb 2025 the HVDC ramp on the Nordic cables
+shortened from 20–30 to 10 minutes, and the measure depends on the ramp length (see Limitations). A summer 2023 vs
+2024 placebo moved +2.2 / +1.0 pp, so the share is not drifting down on its own.
 
 ## Why this question
 
@@ -40,10 +47,13 @@ numbers ([SvK, Dec 2025][r2]). We found no per-cable flow analysis for Denmark.
   The same season in both years; both windows already had 15-min imbalance settlement and 15-min intraday trading
   (since 2025-03-19). The day-ahead switch is the largest known change between them; Nordic aFRR procurement
   also changed on 2025-10-01.
-- **Contrast**: mean H(W26) − mean H(W25), day-block bootstrap, 2000 draws, 90% CI. Pre-computed minimum detectable
+- **Contrast**: mean H(W26) − mean H(W25), bootstrap over days, 2000 draws, 90% CI; a 28-day block version
+  (which respects day-to-day correlation) is reported in the results. Pre-computed minimum detectable
   effect: 0.9 / 0.7 pp.
 - **Controls**: wind (onshore + offshore) is the pre-registered negative control: it has no schedule, so a change there
-  signals a measurement change. Thermal production is secondary.
+  signals a measurement change. Thermal production is secondary. In hindsight wind is not a control: its own
+  within-hour pattern follows the market time unit (excess of hour-boundary over other quarter-boundary steps
+  0.2–0.7 in every May–Sep month of 2024 and 2025, 0.0–0.12 in every May–Sep month of 2026).
 - **Snapshot**: all results come from one frozen database snapshot (9 Nov 2026) with a recorded SHA-256.
 
 ## Results
@@ -63,7 +73,8 @@ Quarter-hour steps existed before (15-min intraday and imbalance since 2023–20
 
 ![Per cable](fig/f3_per_cable.png)
 
-**Per cable.** Every SDAC cable fell, from −1.9 pp (Bornholm–SE4) to −20.5 pp (Netherlands). The Great Britain cable
+**Per cable.** Six of seven SDAC connections fell by 5.8–20.5 pp; Konti-Skan (DK1–Sweden) fell until it returned
+to hourly schedules on 30 June 2026 (−4.7 pp over the window, CI includes 0). The Great Britain cable
 (Viking Link), outside SDAC, stayed at H ≈ 0.99 (−0.3 pp, CI includes 0), which argues against a dataset-wide processing change
 (post-hoc control).
 The DK1–Sweden cable becomes hourly-like again from July 2026 (monthly H 0.33 in May → 0.62 in July). Its
@@ -74,15 +85,17 @@ with DK1's partial rebound in late summer.
 ![Schedules](fig/f8_schedules.png)
 
 **Schedules, an independent source (post-hoc, T6).** ENTSO-E day-ahead scheduled exchanges per border: the share of
-quarter-to-quarter schedule change that happens at the full hour is exactly 1.00 on every border in every month of
-May–Sep 2025, and 0.25–0.60 on every SDAC border from October 2025, except DK1–Sweden, which is back at 1.00 from
-July 2026. GB stays at 1.00 throughout. A SCADA
+quarter-to-quarter schedule change that happens at the full hour is hourly until September 2025 (most borders are
+published at hourly resolution then, so this is by construction), and 0.25–0.51 on every SDAC border from October
+2025, except DK1–Sweden, which is back to hourly from July 2026. GB stays hourly throughout. After the switch,
+day-ahead schedule changes explain 19–71% of the off-hour quarter-boundary flow changes, depending on the cable. A SCADA
 measurement change cannot produce this, so a measurement artefact is an unlikely explanation, although the
 pre-registered cap stays.
 
 ![Wind control](fig/f4_wind_control.png)
 
-**The wind control moved**: −4.1 pp in DK1 and −3.9 pp in DK2, CI excluding 0. That triggers the pre-registered cap.
+**The wind control moved**: −4.1 pp in DK1 and −3.9 pp in DK2, CI excluding 0. That triggers the pre-registered cap
+(and, as noted above, wind turned out not to be a valid control).
 Post-hoc splits (T2–T4) show the shift sits on days with at least one non-positive day-ahead price (DK1 41% → 33%),
 while on other days it is −0.8 / −1.7 pp. About 1.6 of DK1's 4.1 pp comes only from fewer such days (71 → 33). Ordinary-day changes
 still exclude 0. Wind lost hour-boundary step mass (−21% / −33%) and gained none elsewhere, the reverse of added
@@ -127,7 +140,14 @@ control moving.
 
 - Descriptive, one season per regime. No causal claim about the day-ahead MTU alone: aFRR and balancing rules
   also changed.
-- The ±10-minute window reflects the ramping rule; a rule change in the ramp window would move H too.
+- The ±10-minute window reflects the ramping rule; a rule change in the ramp window would move H too. This
+  happened: the HVDC ramp shortened from 20–30 to 10 minutes on 18 Feb 2025 (Nordic cables) and 19 Mar 2025
+  (Kontek), so comparisons across those dates depend on the window (−13/−17 pp with ±10 min, −2 pp with ±5 min,
+  −15/−16 pp with ±15 min). A ramp-invariant measure is planned.
+- H is computed on gross per-cable movement; on the net area exchange the 2025→2026 change is −5.6 / −3.8 pp.
+- Imbalance prices (post-hoc T10): no trace in aFRR at the hour boundary (within routine variation); in DK2
+  only, the excess of >100 EUR/MWh deviations in the first quarter of the hour disappeared at the switch (−6 pp,
+  outside all placebo dates; one of about ten secondary looks).
 - SCADA data are upscaled measurements and "errors will generally not be corrected" (Energinet). A refetch of one
   week per window matched the snapshot exactly (T5).
 - DK1–Germany is an AC connection; its flow follows physics, not HVDC ramps.
@@ -148,5 +168,11 @@ the [imbalance nowcast](nowcast.md).
 [r2]: https://www.svk.se/en/about-us/news/news/procurement-of-automatic-frequency-restoration-reserve-afrr-in-q1-2026/
 [r3]: https://nve.no/media/17543/ramping-restrictions-for-active-power-output-amendment-for-nra-approval.pdf
 [r4]: https://ilr.lu/wp-content/uploads/cadre-legal/ILR-E25-1-A1-LFC_Block_Art_6e1_SOGL_Ramping_Determination.pdf
+
+## Independent audit (15 Nov 2026)
+A second model (Claude Fable 5.2, high reasoning) re-checked the study from the data with independent code.
+Every headline number reproduced exactly, and the October 2025 step survived every hostile check. This
+version adopts its corrections: the two-stage framing, block-bootstrap intervals, the ramp-length caveat, and
+dropping the "exactly 1.00" and wind-control readings.
 
 *Data: Energi Data Service (Energinet), CC BY 4.0; ENTSO-E Transparency Platform. Code available on request.*
