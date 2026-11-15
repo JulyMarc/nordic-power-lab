@@ -119,7 +119,7 @@ on the last known regime; they were picked on the test months, as the project's 
   part, leaving it open when V3 expects a gain earned about 3.5 EUR per MWh of error in both areas (90% interval
   1.5–5.9). A one-line rule (leave it open when it has the sign of the current aFRR activation) earned 2.3–2.8,
   and the difference between the two is within noise. Half of the value came from five days.
-- The day-ahead price stands in for the intraday close-out price, so these are upper bounds.
+- The day-ahead price stands in for the intraday close-out price; the bias this causes has an unknown sign.
 - A new value study, with this accounting and one-line rules as comparators, will be pre-registered and run on
   new data before any money figure is claimed.
 
