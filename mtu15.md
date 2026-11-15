@@ -124,6 +124,22 @@ October 2025 timing argues against it as the main cause, but it is not ruled out
 
 ![Context](fig/f6_q4_context.png)
 
+## Follow-up checks after the audit (pre-registered, 15 Nov 2026)
+
+- **Measurement (T11).** The 5-minute series used here equals the 1-minute PowerSystemRightNow value at the same
+  minute (correlation 0.99), and the hour-boundary share computed from the 1-minute data differs by 0.2 pp
+  (daily correlation 0.98 / 0.94). Live values are rarely revised. The 1-minute data start on 30 Sep 2025, so this
+  confirms the measurement after the switch, not before it.
+- **A measure that ignores ramp length (T12).** The share of 5-minute flow change at :20, :30, :35, :45 (positions
+  an hourly ramp never reaches) rose at every candidate date, but also at the 18 Feb 2025 ramp change itself
+  (+6.2 / +3.3 pp), so it is not fully ramp-proof in practice. On other HVDC cables (ENTSO-E 15-minute flows),
+  the share of change into the :30 quarter rose at the day-ahead switch on NorNed (+7.8 pp) but not on NordLink;
+  cables outside SDAC (North Sea Link, BritNed) did not rise. NorNed also rose at the 15-minute intraday start
+  (19 Mar 2025, +11.5 pp). Pre-registered reading: partial replication.
+- **Which market made the March steps (T13).** Not identifiable: ENTSO-E total schedules stayed hourly on all
+  Danish HVDC borders until mid-April 2025. Off-hour flow changes correlate with mFRR energy activations
+  (0.36 in DK1, descriptive only).
+
 ## What the pre-registration said, and how it scored
 
 | Expected before the run | Prob. | Outcome |
@@ -143,7 +159,7 @@ control moving.
 - The ±10-minute window reflects the ramping rule; a rule change in the ramp window would move H too. This
   happened: the HVDC ramp shortened from 20–30 to 10 minutes on 18 Feb 2025 (Nordic cables) and 19 Mar 2025
   (Kontek), so comparisons across those dates depend on the window (−13/−17 pp with ±10 min, −2 pp with ±5 min,
-  −15/−16 pp with ±15 min). A ramp-invariant measure is planned.
+  −15/−16 pp with ±15 min). A measure built to ignore ramp length still moved at the ramp change (T12).
 - H is computed on gross per-cable movement; on the net area exchange the 2025→2026 change is −5.6 / −3.8 pp.
 - Imbalance prices (post-hoc T10): no trace in aFRR at the hour boundary (within routine variation); in DK2
   only, the excess of >100 EUR/MWh deviations in the first quarter of the hour disappeared at the switch (−6 pp,

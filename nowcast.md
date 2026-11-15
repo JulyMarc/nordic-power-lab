@@ -131,13 +131,28 @@ on the last known regime; they were picked on the test months, as the project's 
 - **Minimum detectable effect** (from the backtest bootstrap): 2.2–4.1% CRPS at 28 days, 1.2–2.3% at 90 days.
   A true gain of 1–2% may need the full 90 days.
 
-## Next
-- **Read the regime instead of predicting it.** Energinet publishes mFRR activations before the price. If they
-  arrive early enough, the sign of the current quarter becomes known 35–50 minutes before its price. The
-  arrival times are being measured now.
-  An upper bound (V3 told the true sign of the current quarter) is +5.3% CRPS in DK1 and +3.0% in DK2 at
-  30 minutes, about +1% at 1 hour and nothing at 3 hours. On the first four days of the feed its sign agrees
-  with the price regime in 91–96% of quarters.
+## Round 3: reading the regime from mFRR activations (backtest, then live)
+- Energinet publishes mFRR energy activations per quarter, usually within minutes of its start; history exists
+  from March 2025. Adding the activations of the previous quarter (always published by issue time) to V3:
+
+| Area | 30 min | 1 h | 3 h |
+|---|---|---|---|
+| DK1 | **+3.8%** | **+1.2%** | +0.4% |
+| DK2 | **+2.4%** | **+1.0%** | +0.2% |
+
+  *CRPS gain over V3, same reused months; bold: interval excludes zero.*
+- **Live version.** At real issue times the newest quarter is still unpublished in ~18% of cases, and the
+  activation prices arrive 30–45 minutes later. A version trained for that (no activation prices, the newest
+  quarter hidden in 18% of training rows) keeps +2.2% / +0.8% (DK1, 30 min / 1 h). It runs live since
+  15 Nov 2026 next to V3, under a protocol amendment frozen before its first forecast.
+- **Where the value is.** For the wind close-out decision, a one-line rule on the same activation feed earns most
+  of what the model earns; the model's extra margin is within noise. The information is in the feed.
+
+## External factors (screen, no effect)
+- Pre-registered factors tested as additions to V3's spike probability (|gap| > 100 EUR/MWh): weather-model
+  disagreement, wind-forecast ramps, storms, neighbours' imbalance, lightning, holidays and DST, geomagnetic
+  storms (Kp) and World Cup matches. None improved the forecast in either area. (Two further factors use data
+  whose publication terms are still being confirmed and are not reported.)
 
 ## Independent audit (15 Nov 2026)
 - A second model (Claude Fable 5.2, high reasoning) re-checked the whole study from the data with its own code.
