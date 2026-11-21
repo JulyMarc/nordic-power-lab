@@ -149,12 +149,24 @@ the inputs, not in the non-linear model.*
 | DK2 | **+2.4%** | **+1.0%** | +0.2% |
 
   *CRPS gain over V3, same reused months; bold: interval excludes zero.*
-- **Live version.** At real issue times the newest quarter is still unpublished in ~18% of cases, and the
-  activation prices arrive 30–45 minutes later. A version trained for that (no activation prices, the newest
-  quarter hidden in 18% of training rows) keeps +2.2% / +0.8% (DK1, 30 min / 1 h). It runs live since
-  15 Nov 2026 next to V3, under a protocol amendment frozen before its first forecast.
+- **Live version.** The backtest assumed the newest quarter is still unpublished at issue time in ~18% of cases,
+  and the activation prices arrive 30–45 minutes later. A version trained for that (no activation prices, the
+  newest quarter hidden in 18% of training rows) keeps +2.2% / +0.8% (DK1, 30 min / 1 h). It runs live since
+  15 Nov 2026 next to V3, under a protocol amendment frozen before its first forecast. *Correction 21 Nov:* the
+  live feed shows the newest quarter missing in only ~0.6% of issues; the 18% figure is not explained yet. The
+  live model is kept as frozen (it is only more cautious than needed).
 - **Where the value is.** For the wind close-out decision, a one-line rule on the same activation feed earns most
   of what the model earns; the model's extra margin is within noise. The information is in the feed.
+- **Reading the running quarter (measured live, 13–21 Nov 2026).** The same feed shows the direction of the
+  *current* quarter's imbalance price before the price itself is published: at the start of the quarter in 45%
+  of quarters, 15 minutes in for 94%, i.e. 30–45 minutes before publication. When the price does move away from
+  day-ahead, the direction read 15 minutes in was wrong in 0–0.5% of quarters (most mismatches are quarters
+  with an activation but no price move). This follows from Energinet's pricing rule (the imbalance price is set
+  by the dominating mFRR activation), so the finding is the *timing*, not a model. The activation prices arrive
+  together with the imbalance price, so the price *level* cannot be read early. A fixed rule for direction and
+  level is under a 28-day forward test frozen on 21 Nov (result after 27 Dec); its coverage is on the
+  [status page](https://julymarc.github.io/nordic-power-lab/status/). Caveats: 8 days of November; 10-minute polling; not a trading result — Nordic balance
+  rules discourage deliberate imbalances.
 
 ## External factors (screen, no effect)
 - Pre-registered factors tested as additions to V3's spike probability (|gap| > 100 EUR/MWh): weather-model
