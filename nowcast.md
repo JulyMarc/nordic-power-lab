@@ -1,7 +1,8 @@
 # Forecasting the Danish imbalance price 30 minutes to 3 hours ahead
 
-*Status 15 Nov 2026 (revised after an independent audit, see the end). Backtest done; the selected model has run live since 13 Nov and is scored against
-simple rules. The live comparison stays sealed until fixed dates (below).*
+*Status 21 Nov 2026 (revised after an independent audit, see the end). Backtest done; the selected model has run live since 13 Nov and is scored against
+simple rules and, since amendment A5 (16 Nov, before any look), against a linear quantile regression on the same
+inputs. The live comparison stays sealed until fixed dates (below).*
 
 ## The question
 - For each 15-minute quarter in DK1 and DK2: what is the gap between the imbalance price and the day-ahead
@@ -37,7 +38,8 @@ simple rules. The live comparison stays sealed until fixed dates (below).*
   month; refit monthly with an expanding window.
 - **Simple rules scored the same way.** "Gap = 0"; the training distribution; "gap = last known gap"; the
   distribution by quarter position and day-ahead ramp; the distribution by the current aFRR activation.
-  A model has to beat the best of these in each cell.
+  A model has to beat the best of these in each cell. A stronger yardstick is a *model*, not a rule: a linear
+  quantile regression on V3's own inputs (added after the backtest, see the table).
 - **Scores.** CRPS (whole distribution, approximated by the quantile score on 21 levels) is primary; direction log loss, mean absolute error, the 1% and 99%
   quantile losses and P(|gap| > 100) are reported.
 - **Uncertainty.** Day-block bootstrap; Bonferroni over the six area × horizon cells.
@@ -61,18 +63,22 @@ simple rules. The live comparison stays sealed until fixed dates (below).*
 
 ![V3 skill](fig/n4_v3_skill.png)
 
-| Area | Ahead | CRPS vs best simple rule | CRPS vs trailing-window rule (audit) | Mean absolute error |
-|---|---|---|---|---|
-| DK1 | 30 min | **4.9% better** | **3.5% better** | **2.7% better** |
-| DK1 | 1 h | **2.7% better** | **2.1% better** | **1.1% better** |
-| DK1 | 3 h | **1.7% better** | **1.4% better** | no difference |
-| DK2 | 30 min | **3.4% better** | **3.0% better** | **1.4% better** |
-| DK2 | 1 h | **1.5% better** | **1.4% better** | no difference |
-| DK2 | 3 h | **0.6% better** | 0.5% better | no difference |
+| Area | Ahead | CRPS vs best simple rule | CRPS vs trailing-window rule (audit) | CRPS vs linear model, same inputs | Mean absolute error |
+|---|---|---|---|---|---|
+| DK1 | 30 min | **4.9% better** | **3.5% better** | **1.8% better** | **2.7% better** |
+| DK1 | 1 h | **2.7% better** | **2.1% better** | **0.7% better** | **1.1% better** |
+| DK1 | 3 h | **1.7% better** | **1.4% better** | **0.5% better** | no difference |
+| DK2 | 30 min | **3.4% better** | **3.0% better** | **1.9% better** | **1.4% better** |
+| DK2 | 1 h | **1.5% better** | **1.4% better** | 0.4% better | no difference |
+| DK2 | 3 h | **0.6% better** | 0.5% better | 0.2% better | no difference |
 
 *Bold: the interval excludes zero. The audit's rules are refreshed daily on the last 28–120 days and conditioned
 on the last known regime; they were picked on the test months, as the project's own rules were. Against them,
-8–30% of the headline gain disappears, and DK2 3 h is no longer distinguishable from zero.*
+8–30% of the headline gain disappears, and DK2 3 h is no longer distinguishable from zero. The linear model
+(exact linear quantile regression on all 32 V3 inputs; post hoc, 16 Nov) is the strongest yardstick in every
+cell: against it 45–75% of the headline gain disappears, and DK2 1 h and 3 h are not distinguishable from zero.
+At 1 h and 3 h the remaining margin is of the order of the model's seed noise (±0.1–0.3%). Most of the skill is in
+the inputs, not in the non-linear model.*
 
 - Direction log loss is 0.6–3.2% better, and the interval excludes zero in 5 of 6 cells.
 - **Weak spot: the extreme upper tail.** The 99% quantile is 0–11% worse than the simple rules.
@@ -129,7 +135,9 @@ on the last known regime; they were picked on the test months, as the project's 
   - 18 Dec 2026, a descriptive look (28 days);
   - 18 Feb 2027, the decision (90 days).
 - **Minimum detectable effect** (from the backtest bootstrap): 2.2–4.1% CRPS at 28 days, 1.2–2.3% at 90 days.
-  A true gain of 1–2% may need the full 90 days.
+  A true gain of 1–2% may need the full 90 days. Against the linear model the backtest margin at 1 h and 3 h
+  (0.2–0.7%) is below the 90-day detectable effect, so the live test will most likely *not* show a gain over it
+  in those cells; this is stated in advance.
 
 ## Round 3: reading the regime from mFRR activations (backtest, then live)
 - Energinet publishes mFRR energy activations per quarter, usually within minutes of its start; history exists
