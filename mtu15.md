@@ -24,6 +24,14 @@ imbalance prices, 19 March). Its size is hard to state: on 18 Feb 2025 the HVDC 
 shortened from 20–30 to 10 minutes, and the measure depends on the ramp length (see Limitations). A summer 2023 vs
 2024 placebo moved +2.2 / +1.0 pp, so the share is not drifting down on its own.
 
+![Timeline of the hour-boundary share with dated market events](fig/hero_timeline.png)
+
+*The hour-boundary share H per day (7-day mean), May 2024 – Sep 2026, with the dated market events; open markers are dated from the data only.*
+
+![Flow change by minute of the hour, 2024–2026](fig/hero_inside_hour.png)
+
+*Inside the hour: the steps at the full hour stayed about the same size, the steps at :15, :30 and :45 grew (descriptive).*
+
 ## Why this question
 
 Since 2025-10-01 SDAC trades day-ahead in 15-minute products. Nordic HVDC rules require each schedule change to
@@ -64,8 +72,6 @@ numbers ([SvK, Dec 2025][r2]). We found no per-cable flow analysis for Denmark.
 Robustness: about the same with medians, without the top 1% of days, with week blocks, without any single cable, or
 without 7 days of frozen telemetry (−10.6 / −7.7 pp). Shifting the window ±5 minutes keeps the sign but shrinks
 the change to −8.4…−8.9 (DK1) and −5.7…−6.8 pp (DK2). Thermal production (secondary) fell −2.7 / −3.2 pp.
-
-![Step mass by position](fig/f2_position_mass.png)
 
 **The share fell because quarter-hour steps grew, not because hour steps shrank.** Mean daily step mass at the
 hour boundary: DK1 27 772 → 27 505 MW (CI includes 0), DK2 −6%. Off-boundary mass: DK1 +52%, DK2 +31% (post-hoc, T4).

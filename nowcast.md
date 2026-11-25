@@ -80,6 +80,10 @@ cell: against it 45–75% of the headline gain disappears, and DK2 1 h and 3 h a
 At 1 h and 3 h the remaining margin is of the order of the model's seed noise (±0.1–0.3%). Most of the skill is in
 the inputs, not in the non-linear model.*
 
+![V3 skill against three yardsticks](fig/hero_yardsticks.png)
+
+*V3's CRPS skill against three yardsticks per area and horizon, with 98.3% intervals (backtest, months reused, yardsticks chosen post hoc).*
+
 - Direction log loss is 0.6–3.2% better, and the interval excludes zero in 5 of 6 cells.
 - **Weak spot: the extreme upper tail.** The 99% quantile is 0–11% worse than the simple rules.
 - **A boosted-tree model on the round-1 inputs does most of the work.** A plain quantile-boosting model without
@@ -89,6 +93,10 @@ the inputs, not in the non-linear model.*
   the size of the risk better than the rules; it is only modestly better on the sign.
 - **Not a claim.** These months had already been used for round 1, so this is a selection-aware backtest.
   The claim is tested only on new, live data.
+
+![Backtest forecast fan on a typical and an extreme day](fig/hero_nowcast_days.png)
+
+*Two backtest days per area (1 h ahead), picked by a fixed rule: forecast bands, realised gaps and P(up / down). Backtest, months reused; not live.*
 
 ## What did not help on top of V3
 
@@ -167,6 +175,10 @@ the inputs, not in the non-linear model.*
   level is under a 28-day forward test frozen on 21 Nov (result after 27 Dec); its coverage is on the
   [status page](https://julymarc.github.io/nordic-power-lab/status/). Caveats: 8 days of November; 10-minute polling; not a trading result — Nordic balance
   rules discourage deliberate imbalances.
+
+![Timing of the mFRR activation feed vs the imbalance price](fig/hero_running_quarter.png)
+
+*When each field first appears in the live feed, 13–20 Nov 2026 (quarters before 21 Nov only); timing only, no accuracy.*
 
 ## External factors (screen, no effect)
 - Pre-registered factors tested as additions to V3's spike probability (|gap| > 100 EUR/MWh): weather-model
